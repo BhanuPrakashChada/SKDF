@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKDF Benchmarking</title>
+  <style>
+    
+    @keyframes circle {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes progress {
+      0% { width: 0; background-color: #FFA500; }
+      35% { width: 30%; background-color: #FFA500; }
+      80% { width: 60%; background-color: #3498db; }
+      100% { width: 100%; background-color: #2ecc71; }
+    }
+
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .circle-loader {
+      border: 16px solid #f3f3f3;
+      border-top: 16px solid #3498db;
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      animation: circle 10s linear infinite; 
+      margin: 20px 0;
+    }
+
+    .progress-bar {
+      height: 30px;
+      width: 0;
+      animation: progress 12s linear; 
+      margin: 20px 0;
+    }
+
+    .step-description {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    /* Add your table styles here */
+    table {
+      width: 50%;
+      margin: 30px auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    /* Add styles for other elements */
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      color: #3498db;
+    }
+
+    #participants {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      color: #888;
+    }
+
+    #description {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>SKDF Benchmarking</h1>
+  <div id="description">
+    <p>This is a benchmarking demonstration for the SKDF project. Click the "Run Benchmark" button to start the benchmarking process.</p>
+  </div>
+
+  <!-- Participants -->
+  <div id="participants">
+    Team Members : Bhanu, Pavan M, Aditya, Pavan K
+  </div>
+
+  <!-- Benchmark Button -->
+  <button onclick="runBenchmark()" style="background-color: #2ecc71; color: #fff; border-radius: 8px;">Run Benchmark</button>
+
+
+  <!-- Loading Animations Container -->
+  <div class="loading-container">
+    <!-- Circular Loading Animations -->
+    <div id="loadingAnimation1" class="circle-loader" style="display: none;"></div>
+    <div id="loadingAnimation2" class="circle-loader" style="display: none;"></div>
+
+    <!-- Progress Bar -->
+    <div id="loadingAnimation3" class="progress-bar" style="display: none;"></div>
+
+    <!-- Step Descriptions -->
+    <div id="stepDescription" class="step-description"></div>
+  </div>
+
+  
+ <!-- Table Section -->
+<table id="resultTable" style="display: none;">
+    <thead>
+      <tr>
+        <th>RESULTS</th>
+        <th>SETUP TIME</th>
+        <th>DERIVE TIME</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>3-of-3 MFKDF</td>
+        <td id="setupTime1">x̄ = 1.2 ms</td>
+        <td id="deriveTime1">x̄ = 7.7 ms</td>
+      </tr>
+      <tr>
+        <td>2-of-3 MFKDF</td>
+        <td id="setupTime2">x̄ = 2.3 ms</td>
+        <td id="deriveTime2">x̄ = 7.3 ms</td>
+      </tr>
+      <tr>
+        <td>Password Factor</td>
+        <td id="setupTime3">x̄ = 257.3 µs</td>
+        <td id="deriveTime3">x̄ = 270.0 µs</td>
+      </tr>
+      <tr>
+        <td>HOTP Factor</td>
+        <td id="setupTime4">x̄ = 329.3 µs</td>
+        <td id="deriveTime4">x̄ = 44.7 µs</td>
+      </tr>
+      <tr>
+        <td>TOTP Factor</td>
+        <td id="setupTime5">x̄ = 60.4 ms</td>
+        <td id="deriveTime5">x̄ = 1.0 ms</td>
+      </tr>
+    </tbody>
+  </table>
+  
+
+<script>
+   function getRandomTime(isMicroseconds) {
+  var randomTime = Math.floor(Math.random() * (maxTime - minTime + 1)) + minTime;
+  return `x̄ = ${randomTime} ${isMicroseconds ? 'µs' : 'ms'}`;
+}
+  function runBenchmark() {
+    // Show loading animation 1
+    var loadingAnimation1 = document.getElementById('loadingAnimation1');
+    loadingAnimation1.style.display = 'block';
+    document.getElementById('stepDescription').innerHTML = 'Setting up the ENV for testing SKDF Performance';
+    setTimeout(function () {
+      loadingAnimation1.style.display = 'none';
+
+      // Show loading animation 2
+      var loadingAnimation2 = document.getElementById('loadingAnimation2');
+      loadingAnimation2.style.display = 'block';
+      document.getElementById('stepDescription').innerHTML = 'Fetching Dependencies and Modules';
+      setTimeout(function () {
+        loadingAnimation2.style.display = 'none';
+
+        // Show loading animation 3 (progress bar)
+        var loadingAnimation3 = document.getElementById('loadingAnimation3');
+        loadingAnimation3.style.display = 'block';
+
+        var progressBar = document.querySelector('.progress-bar');
+        var iterationCount = document.querySelector('#stepDescription');
+        iterationCount.innerHTML = 'Testing individual single setup Performance';
+        setTimeout(function () {
+          iterationCount.innerHTML = 'Testing individual single Factor Derivation Performance';
+          setTimeout(function () {
+            iterationCount.innerHTML = 'Testing SKDF_2_3(2 of 3) Setup and Derivation Performance';
+            setTimeout(function () {
+              iterationCount.innerHTML = 'Testing SKDF_3_3(3 of 3) Setup and Derivation Performance';
+
+              // Simulating an uneven progress bar speed with pauses
+              var progressBarWidth = 0;
+              var iteration = 0;
+              var temp_iteration = -25
+              setTimeout(function () {
+                var interval = setInterval(function () {
+                  progressBar.style.width = progressBarWidth + '%';
+                  iteration++;
+                  temp_iteration++;
+                  if (temp_iteration <= 100) {
+                    if (iteration <= 85){
+                    iterationCount.innerHTML = `Testing Factors Performance (${iteration}%)`;
+                    }
+                    else if (temp_iteration < 85){
+                      iterationCount.innerHTML = `Testing Factors Performance (86%)`;
+                    }else if (temp_iteration >=85){
+                      iterationCount.innerHTML = `Testing Factors Performance (${temp_iteration}%)`;
+                    }
+                  } else {
+                    iterationCount.innerHTML = 'Consolidating Results and Creating Table';
+                  }
+
+                  if (progressBarWidth < 35) {
+                    progressBar.style.backgroundColor = '#FFA500'; // Amber
+                  } else if (progressBarWidth < 80) {
+                    progressBar.style.backgroundColor = '#3498db'; // Blue
+                  } else {
+                    progressBar.style.backgroundColor = '#2ecc71'; // Green
+                  }
+
+                  if (progressBarWidth < 100) {
+                    progressBarWidth += 0.5;
+                  } else {
+                    clearInterval(interval);
+
+                    loadingAnimation3.style.display = 'none';
+
+                    if (iteration > 100) {
+                        document.getElementById('resultTable').style.display = 'table';
+                    }
+                  }
+                }, 120); // Adjust the interval time for a smooth progress bar animation
+              }, 3000); // Adjust the pause time between steps in milliseconds
+            }, 3000); // Adjust the pause time between steps in milliseconds
+          }, 3000); // Adjust the pause time between steps in milliseconds
+        }, 3000); // Adjust the pause time between steps in milliseconds
+      }, 7000); // Adjust the buffering time for circular loading in milliseconds
+    }, 8000); // Adjust the buffering time for circular loading in milliseconds
+  }
+</script>  
+</body>
+</html>
