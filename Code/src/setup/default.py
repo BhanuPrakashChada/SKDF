@@ -27,9 +27,7 @@ DEFAULT_QUESTION = {
 DEFAULT_HOTP = {
     "id": "hotp",
     "hash": "sha1",  # required for Google Authenticator compatibility
-    "digits": 6,  # most common choice
-    "issuer": "MFKDF",
-    "label": "mfkdf.com"
+    "digits": 6  # most common choice
 }
 
 DEFAULT_TOTP = {
@@ -37,9 +35,7 @@ DEFAULT_TOTP = {
     "hash": "sha1",  # required for Google Authenticator compatibility
     "digits": 6,  # required for Google Authenticator compatibility
     "step": 30,  # required for Google Authenticator compatibility
-    "window": 87600,  # max window between logins, 1 month by default
-    "issuer": "MFKDF",
-    "label": "mfkdf.com"
+    "window": 87600  # max window between logins, 1 month by default
 }
 
 DEFAULT_STACK = {
