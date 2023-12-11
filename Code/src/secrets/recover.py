@@ -2,13 +2,42 @@ import secrets
 from typing import List, Optional
 
 class SecretRecoverer:
+    """
+    # Example usage:
+    shares_value = [b'your_share']
+    k_value = 1
+    n_value = 1
+    secret_recoverer_obj = SecretRecoverer(shares_value, k_value, n_value)
+    result = secret_recoverer_obj.recover()
+    print(result)
+    """
+
     def __init__(self, shares: List[Optional[bytes]], k: int, n: int):
+        """
+        Initializes a Recover object.
+
+        Args:
+            shares (List[Optional[bytes]]): A list of shares, where each share is an optional byte string.
+            k (int): The minimum number of shares required to recover the secret.
+            n (int): The total number of shares available.
+
+        Returns:
+            None
+        """
         self.shares = shares
         self.k = k
         self.n = n
         self.validate_inputs()
 
     def validate_inputs(self):
+        """
+        Validates the inputs provided for secret recovery.
+
+        Raises:
+            TypeError: If shares is not a list.
+            ValueError: If shares is empty, n is not a positive integer, k is not a positive integer,
+                        k is greater than n, or there are not enough shares provided to retrieve the secret.
+        """
         if not isinstance(self.shares, list):
             raise TypeError('shares must be a list')
         if not self.shares:
@@ -23,6 +52,16 @@ class SecretRecoverer:
             raise ValueError('not enough shares provided to retrieve secret')
 
     def recover(self) -> List[bytes]:
+        """
+        Recovers the secret using the provided shares.
+
+        Returns:
+            List[bytes]: The recovered secret.
+
+        Raises:
+            ValueError: If the shares list size is not equal to n for k-of-n recovery,
+                        or if there are not enough shares provided to retrieve the secret.
+        """
         if self.k == 1:  # 1-of-n
             return [next(x for x in self.shares if x is not None)] * self.n
         elif self.k == self.n:  # n-of-n
@@ -55,11 +94,3 @@ class SecretRecoverer:
                 new_shares.append(bytes.fromhex(components.data))
 
             return new_shares
-
-# Example usage:
-shares_value = [b'your_share']
-k_value = 1
-n_value = 1
-secret_recoverer_obj = SecretRecoverer(shares_value, k_value, n_value)
-result = secret_recoverer_obj.recover()
-print(result)
