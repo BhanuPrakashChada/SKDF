@@ -1,26 +1,32 @@
 from zxcvbn import zxcvbn
-from functools import partial
 
-def password(password):
-    if not isinstance(password, str):
-        raise TypeError('password must be a string')
-    if len(password) == 0:
-        raise ValueError('password cannot be empty')
+class Password:
+    """
+        # Example usage:
+        password_value = 'Your_password'
+        password_obj = Password(password_value)
+        result = password_obj.generate_factor({})
+        print(result)
+    """
+    def __init__(self, password):
+        if not isinstance(password, str):
+            raise TypeError('password must be a string')
+        if len(password) == 0:
+            raise ValueError('password cannot be empty')
+        self.password = password
+        self.strength = zxcvbn(self.password)
 
-    strength = zxcvbn(password)
-
-    async def generate_factor(params):
+    async def generate_factor(self, params):
         return {
             'type': 'password',
-            'data': password.encode('utf-8'),
-            'params': partial(lambda **params: {}, **params),
-            'output': partial(lambda **params: {'strength': strength}, **params)
+            'data': self.password.encode('utf-8'),
+            'params': self.get_params(params),
+            'output': self.get_output()
         }
 
-    return generate_factor
+    @staticmethod
+    def get_params(params):
+        return {}
 
-# Example usage:
-password_value = 'your_password'
-factor_generator = password(password_value)
-result = factor_generator({})
-print(result)
+    def get_output(self):
+        return {'strength': self.strength}

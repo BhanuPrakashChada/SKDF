@@ -5,27 +5,41 @@ from .evaluate import evaluate
 from .derive.factors.stack import stack
 from .derive.key import key as derive_key
 
-def expand(policy: Dict[str, Any], factors: Dict[str, Any]) -> Dict[str, Any]:
-    parsed_factors = {}
-    ids = list(factors.keys())
+class KeyDerivation:
+    """
+        # Example usage:
+        policy_value = {'factors': [{'type': 'stack', 'id': 'your_id', 'params': 'your_params'}]}
+        factors_value = {'your_id': 'your_factor'}
+        key_derivation_obj = KeyDerivation(policy_value, factors_value)
+        result = key_derivation_obj.derive_key()
+        print(result)
+    """
+    def __init__(self, policy: Dict[str, Any], factors: Dict[str, Any]):
+        self.policy = policy
+        self.factors = factors
 
-    for factor in policy['factors']:
-        if factor['type'] == 'stack':
-            if evaluate(factor['params'], ids):
-                parsed_factors[factor['id']] = stack(expand(factor['params'], factors))
-        else:
-            if factor['id'] in ids:
-                parsed_factors[factor['id']] = factors[factor['id']]
+    def validate_and_evaluate(self):
+        ids = list(self.factors.keys())
+        if not validate(self.policy):
+            raise TypeError('policy contains duplicate ids')
+        if not evaluate(self.policy, ids):
+            raise ValueError('insufficient factors to derive key')
 
-    return parsed_factors
+    def expand_factors(self):
+        parsed_factors = {}
+        ids = list(self.factors.keys())
 
-async def derive(policy: Dict[str, Any], factors: Dict[str, Any]) -> Dict[str, Union[str, Dict[str, Any]]]:
-    ids = list(factors.keys())
-    if not validate(policy):
-        raise TypeError('policy contains duplicate ids')
-    if not evaluate(policy, ids):
-        raise ValueError('insufficient factors to derive key')
+        for factor in self.policy['factors']:
+            if factor['type'] == 'stack':
+                if evaluate(factor['params'], ids):
+                    parsed_factors[factor['id']] = stack(self.expand_factors(factor['params'], self.factors))
+            else:
+                if factor['id'] in ids:
+                    parsed_factors[factor['id']] = self.factors[factor['id']]
 
-    expanded = expand(policy, factors)
+        return parsed_factors
 
-    return await derive_key(policy, expanded)
+    async def derive_key(self):
+        self.validate_and_evaluate()
+        expanded = self.expand_factors()
+        return await derive_key(self.policy, expanded)

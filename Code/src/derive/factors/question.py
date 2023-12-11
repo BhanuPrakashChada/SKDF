@@ -1,27 +1,32 @@
 from zxcvbn import zxcvbn
-from functools import partial
 
-def question(answer):
-    if not isinstance(answer, str):
-        raise TypeError('answer must be a string')
-    if len(answer) == 0:
-        raise ValueError('answer cannot be empty')
+class Question:
+    """
+        # Example usage:
+        answer_value = 'Your_answer'
+        question_obj = Question(answer_value)
+        result = question_obj.generate_factor({})
+        print(result)
+    """
+    def __init__(self, answer):
+        if not isinstance(answer, str):
+            raise TypeError('answer must be a string')
+        if len(answer) == 0:
+            raise ValueError('answer cannot be empty')
+        self.answer = answer.lower().replace(r'[^0-9a-z ]', '').strip()
+        self.strength = zxcvbn(self.answer)
 
-    answer = answer.lower().replace(r'[^0-9a-z ]', '').strip()
-    strength = zxcvbn(answer)
-
-    async def generate_factor(params):
+    def generate_factor(self, params):
         return {
             'type': 'question',
-            'data': answer.encode('utf-8'),
-            'params': partial(lambda **params: params, **params),
-            'output': partial(lambda **params: {'strength': strength}, **params)
+            'data': self.answer.encode('utf-8'),
+            'params': self.generate_params(params),
+            'output': self.get_output()
         }
 
-    return generate_factor
+    @staticmethod
+    def generate_params(params):
+        return params
 
-# Example usage:
-answer_value = 'Your_answer'
-factor_generator = question(answer_value)
-result = factor_generator({})
-print(result)
+    def get_output(self):
+        return {'strength': self.strength}

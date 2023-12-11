@@ -1,27 +1,40 @@
 import asyncio
 
-async def setup(factor, key=None):
-    result = await factor()
+class FactorHandler:
+    """
+        # Example usage:
+        factor_value = your_factor
+        key_value = your_key
+        factor_handler_obj = FactorHandler(factor_value, key_value)
+        setup_result = await factor_handler_obj.setup()
+        print(setup_result)
+        derive_result = await factor_handler_obj.derive(your_params)
+        print(derive_result)
+    """
+    def __init__(self, factor, key=None):
+        self.factor = factor
+        self.key = key
 
-    if key:
-        params = await result['params'](key=key)
-        result['params'] = lambda: asyncio.ensure_future(params)
+    async def setup(self):
+        result = await self.factor()
 
-        output = await result['output']()
-        result['output'] = lambda: asyncio.ensure_future(output)
+        if self.key:
+            params = await result['params'](key=self.key)
+            result['params'] = lambda: asyncio.ensure_future(params)
 
-    return result
+            output = await result['output']()
+            result['output'] = lambda: asyncio.ensure_future(output)
 
-async def derive(factor, params, key=None):
-    result = await factor(params)
+        return result
 
-    if key:
-        params = await result['params'](key=key)
-        result['params'] = lambda: asyncio.ensure_future(params)
+    async def derive(self, params):
+        result = await self.factor(params)
 
-        output = await result['output']()
-        result['output'] = lambda: asyncio.ensure_future(output)
+        if self.key:
+            params = await result['params'](key=self.key)
+            result['params'] = lambda: asyncio.ensure_future(params)
 
-    return lambda: asyncio.ensure_future(result)
+            output = await result['output']()
+            result['output'] = lambda: asyncio.ensure_future(output)
 
-factor = {'setup': setup, 'derive': derive}
+        return lambda: asyncio.ensure_future(result)
