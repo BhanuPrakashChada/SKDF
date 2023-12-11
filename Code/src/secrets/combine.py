@@ -1,23 +1,49 @@
 import secrets
 from typing import List, Optional
 
+from typing import List, Optional
+
 class SecretCombiner:
     """
-        # Example usage:
-        shares_value = [b'your_share']
-        k_value = 1
-        n_value = 1
-        secret_combiner_obj = SecretCombiner(shares_value, k_value, n_value)
-        result = secret_combiner_obj.combine()
-        print(result)
+    A class that combines secret shares to retrieve the original secret.
+
+    Example usage:
+    shares_value = [b'your_share']
+    k_value = 1
+    n_value = 1
+    secret_combiner_obj = SecretCombiner(shares_value, k_value, n_value)
+    result = secret_combiner_obj.combine()
+    print(result)
     """
+
     def __init__(self, shares: List[Optional[bytes]], k: int, n: int):
+        """
+        Initializes a SecretCombiner object.
+
+        Args:
+            shares (List[Optional[bytes]]): A list of secret shares.
+            k (int): The minimum number of shares required to retrieve the secret.
+            n (int): The total number of shares.
+
+        Raises:
+            TypeError: If shares is not a list.
+            ValueError: If shares is empty, n is not a positive integer, k is not a positive integer,
+                        k is greater than n, or there are not enough shares provided to retrieve the secret.
+        """
         self.shares = shares
         self.k = k
         self.n = n
         self.validate_inputs()
 
     def validate_inputs(self):
+        """
+        Validates the inputs provided for the SecretCombiner object.
+
+        Raises:
+            TypeError: If shares is not a list.
+            ValueError: If shares is empty, n is not a positive integer, k is not a positive integer,
+                        k is greater than n, or there are not enough shares provided to retrieve the secret.
+        """
         if not isinstance(self.shares, list):
             raise TypeError('shares must be a list')
         if not self.shares:
@@ -32,6 +58,16 @@ class SecretCombiner:
             raise ValueError('not enough shares provided to retrieve secret')
 
     def combine(self) -> bytes:
+        """
+        Combines the secret shares to retrieve the original secret.
+
+        Returns:
+            bytes: The original secret.
+
+        Raises:
+            ValueError: If the shares list size is not equal to n for k-of-n scheme,
+                        or if there are not enough shares provided to retrieve the secret.
+        """
         if self.k == 1:  # 1-of-n
             return next(x for x in self.shares if x is not None)
         elif self.k == self.n:  # n-of-n
